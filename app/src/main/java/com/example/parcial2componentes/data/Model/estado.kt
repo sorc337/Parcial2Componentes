@@ -1,5 +1,9 @@
 package com.example.parcial2componentes.data.Model
 
-data class estado(
-    val estado: String = ""
+import com.google.gson.annotations.SerializedName
+
+data class Estado(
+    @SerializedName("estado") val estado: String = ""
 )
+
+typealias estado = Estado
