@@ -41,6 +41,8 @@ fun viajes(
             color = Color.White
         )
 
+                Spacer(modifier = Modifier.height(700.dp))
+
                 OutlinedButton(
                     onClick = onNavigateToAvailableGames,
                     modifier = Modifier
