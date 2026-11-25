@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.parcial2componentes.ui.screens.CrearViajesScreen
 import com.example.parcial2componentes.ui.screens.viajes
 import com.example.parcial2componentes.ui.theme.Parcial2ComponentesTheme
@@ -56,6 +58,9 @@ fun MainApp() {
             viajes(
                 onNavigateToAvailableGames = {
                     navController.navigate("crearviajes")
+                },
+                onNavigateToDetalleViaje = { tripId ->
+                    navController.navigate("consultarDetalleViaje/$tripId")
                 }
             )
         }
@@ -68,6 +73,12 @@ fun MainApp() {
                     navController.popBackStack()
                 }
             )
+        }
+        composable(
+            route = "consultarDetalleViaje/{tripId}",
+            arguments = listOf(navArgument("tripId") { type = NavType.StringType })
+        ) {
+            // Pantalla de detalle (en blanco por el momento según solicitado)
         }
     }
 }

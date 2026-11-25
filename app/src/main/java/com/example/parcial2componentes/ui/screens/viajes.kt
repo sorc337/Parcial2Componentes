@@ -19,7 +19,8 @@ import com.example.parcial2componentes.data.Repository.ViajesRepository
 
 @Composable
 fun viajes(
-    onNavigateToAvailableGames: () -> Unit = {}
+    onNavigateToAvailableGames: () -> Unit = {},
+    onNavigateToDetalleViaje: (tripId: String) -> Unit = {}
 ) {
     val backgroundColor = Color(0xFF11152B)
     val cardColor = Color(0xFF1D2340)
@@ -98,6 +99,7 @@ fun viajes(
                         ) {
                             items(listaViajes) { viaje ->
                                 Card(
+                                    onClick = { onNavigateToDetalleViaje(viaje.id ?: "") },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(14.dp),
                                     colors = CardDefaults.cardColors(containerColor = Color(0xFF161B33)),
