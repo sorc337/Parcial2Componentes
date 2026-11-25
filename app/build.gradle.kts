@@ -65,6 +65,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-// Retrofit with Scalar Converter
+    // Retrofit with Scalar Converter
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    // Retrofit with Gson Converter
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
