@@ -54,15 +54,8 @@ fun MainApp() {
         }
         composable("viajes") {
             viajes(
-                onNavigateToGame = { /* TODO */ },
-                onNavigateToJoin = { /* TODO */ },
                 onNavigateToAvailableGames = {
                     navController.navigate("crearviajes")
-                },
-                onCerrarSesion = {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = true }
-                    }
                 }
             )
         }

@@ -16,10 +16,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun viajes(
-    onNavigateToGame: () -> Unit = {},
-    onNavigateToJoin: () -> Unit = {},
-    onNavigateToAvailableGames: () -> Unit = {},
-    onCerrarSesion: () -> Unit = {}
+    onNavigateToAvailableGames: () -> Unit = {}
 ) {
     val backgroundColor = Color(0xFF11152B)
     val cardColor = Color(0xFF1D2340)
