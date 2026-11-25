@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.parcial2componentes.ui.screens.CrearViajesScreen
 import com.example.parcial2componentes.ui.screens.viajes
 import com.example.parcial2componentes.ui.theme.Parcial2ComponentesTheme
 
@@ -53,13 +54,25 @@ fun MainApp() {
         }
         composable("viajes") {
             viajes(
-                onNavigateToGame = { /* TODO: Navegar a juego */ },
-                onNavigateToJoin = { /* TODO: Unirse a sala */ },
-                onNavigateToAvailableGames = { /* TODO: Ver salas disponibles */ },
+                onNavigateToGame = { /* TODO */ },
+                onNavigateToJoin = { /* TODO */ },
+                onNavigateToAvailableGames = {
+                    navController.navigate("crearviajes")
+                },
                 onCerrarSesion = {
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }
+                }
+            )
+        }
+        composable("crearviajes") {
+            CrearViajesScreen(
+                onVolver = {
+                    navController.popBackStack()
+                },
+                onCrearViaje = { nombre, destino, fechaInicio, fechaFin ->
+                    navController.popBackStack()
                 }
             )
         }
