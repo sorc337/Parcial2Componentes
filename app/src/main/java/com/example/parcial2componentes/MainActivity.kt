@@ -154,7 +154,7 @@ fun HomeScreen(onNavigateToViajes: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "✈️ Gestión de Viajes",
+                        text = "Gestión de Viajes",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -206,7 +206,7 @@ fun HomeScreen(onNavigateToViajes: () -> Unit) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "✨ Control de Gastos & Categorías",
+                        text = "Control de Gastos & Categorías",
                         fontSize = 14.sp,
                         color = textoSecundario,
                         fontWeight = FontWeight.Medium
