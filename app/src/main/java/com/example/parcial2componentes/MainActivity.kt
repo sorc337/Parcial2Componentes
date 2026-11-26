@@ -1,3 +1,4 @@
+
 package com.example.parcial2componentes
 
 import android.os.Bundle
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.parcial2componentes.ui.screens.AgregarLugarScreen
 import com.example.parcial2componentes.ui.screens.ConsultarDetalleViajeScreen
 import com.example.parcial2componentes.ui.screens.CrearViajesScreen
 import com.example.parcial2componentes.ui.screens.viajes
@@ -30,6 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             Parcial2ComponentesTheme {
                 MainApp()
@@ -53,6 +56,7 @@ fun MainApp() {
                 }
             )
         }
+
         composable("viajes") {
             viajes(
                 onNavigateToAvailableGames = {
@@ -63,6 +67,7 @@ fun MainApp() {
                 }
             )
         }
+
         composable("crearviajes") {
             CrearViajesScreen(
                 onVolver = {
@@ -73,19 +78,37 @@ fun MainApp() {
                 }
             )
         }
+
         composable("consultardeDetalles/{tripId}") { backStackEntry ->
             val tripId = backStackEntry.arguments?.getString("tripId") ?: ""
+
             ConsultarDetalleViajeScreen(
                 tripId = tripId,
-                onVolver = { navController.popBackStack() },
+                onVolver = {
+                    navController.popBackStack()
+                },
                 onNavigateToAddLugar = { id ->
                     navController.navigate("agregarLugar/$id")
                 }
             )
         }
+
         composable("agregarLugar/{tripId}") { backStackEntry ->
             val tripId = backStackEntry.arguments?.getString("tripId") ?: ""
 
+            AgregarLugarScreen(
+                tripId = tripId,
+                onVolver = {
+                    navController.popBackStack()
+                },
+                onLugarRegistrado = {
+                    navController.navigate("consultardeDetalles/$tripId") {
+                        popUpTo("consultardeDetalles/$tripId") {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
     }
 }
@@ -104,7 +127,9 @@ fun HomeScreen(onNavigateToViajes: () -> Unit) {
                 text = "Pantalla Principal",
                 fontSize = 24.sp
             )
+
             Spacer(modifier = Modifier.height(20.dp))
+
             Button(onClick = onNavigateToViajes) {
                 Text(text = "Ir a Viajes")
             }
