@@ -18,11 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.example.parcial2componentes.ui.screens.ConsultarDetalleViajeScreen
 import com.example.parcial2componentes.ui.screens.CrearViajesScreen
 import com.example.parcial2componentes.ui.screens.viajes
 import com.example.parcial2componentes.ui.theme.Parcial2ComponentesTheme
@@ -59,8 +58,8 @@ fun MainApp() {
                 onNavigateToAvailableGames = {
                     navController.navigate("crearviajes")
                 },
-                onNavigateToDetalleViaje = { tripId ->
-                    navController.navigate("consultarDetalleViaje/$tripId")
+                onNavigateToDetalle = { tripId ->
+                    navController.navigate("consultardeDetalles/$tripId")
                 }
             )
         }
@@ -69,16 +68,24 @@ fun MainApp() {
                 onVolver = {
                     navController.popBackStack()
                 },
-                onCrearViaje = { nombre, destino, fechaInicio, fechaFin ->
+                onViajeCreado = {
                     navController.popBackStack()
                 }
             )
         }
-        composable(
-            route = "consultarDetalleViaje/{tripId}",
-            arguments = listOf(navArgument("tripId") { type = NavType.StringType })
-        ) {
-            // Pantalla de detalle (en blanco por el momento según solicitado)
+        composable("consultardeDetalles/{tripId}") { backStackEntry ->
+            val tripId = backStackEntry.arguments?.getString("tripId") ?: ""
+            ConsultarDetalleViajeScreen(
+                tripId = tripId,
+                onVolver = { navController.popBackStack() },
+                onNavigateToAddLugar = { id ->
+                    navController.navigate("agregarLugar/$id")
+                }
+            )
+        }
+        composable("agregarLugar/{tripId}") { backStackEntry ->
+            val tripId = backStackEntry.arguments?.getString("tripId") ?: ""
+
         }
     }
 }

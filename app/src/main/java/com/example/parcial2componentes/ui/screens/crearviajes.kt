@@ -2,52 +2,108 @@ package com.example.parcial2componentes.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.parcial2componentes.data.Model.Viaje
+import com.example.parcial2componentes.data.Repository.ViajesRepository
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearViajesScreen(
     onVolver: () -> Unit = {},
-    onCrearViaje: (nombre: String, destino: String, fechaInicio: String, fechaFin: String) -> Unit = { _, _, _, _ -> }
+    onViajeCreado: () -> Unit = {}
 ) {
     var nombreViaje by remember { mutableStateOf("") }
     var destino by remember { mutableStateOf("") }
     var fechaInicio by remember { mutableStateOf("") }
     var fechaFin by remember { mutableStateOf("") }
 
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
+
+    val startDatePickerState = rememberDatePickerState()
+    val endDatePickerState = rememberDatePickerState()
+
     val backgroundColor = Color(0xFF11152B)
     val cardColor = Color(0xFF1D2340)
     val accentColor = Color(0xFF9B83FF)
     val inputBgColor = Color(0xFF161B33)
     val secondaryText = Color(0xFFB7BCD2)
+
+    val repository = remember { ViajesRepository() }
+    val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    fun formatDate(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        return formatter.format(Date(millis))
+    }
+
+    if (showStartDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showStartDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    startDatePickerState.selectedDateMillis?.let { millis ->
+                        fechaInicio = formatDate(millis)
+                    }
+                    showStartDatePicker = false
+                }) {
+                    Text("Aceptar", color = accentColor)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartDatePicker = false }) {
+                    Text("Cancelar", color = secondaryText)
+                }
+            }
+        ) {
+            DatePicker(state = startDatePickerState)
+        }
+    }
+
+    if (showEndDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showEndDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    endDatePickerState.selectedDateMillis?.let { millis ->
+                        fechaFin = formatDate(millis)
+                    }
+                    showEndDatePicker = false
+                }) {
+                    Text("Aceptar", color = accentColor)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndDatePicker = false }) {
+                    Text("Cancelar", color = secondaryText)
+                }
+            }
+        ) {
+            DatePicker(state = endDatePickerState)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -60,7 +116,6 @@ fun CrearViajesScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Encabezado
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -135,62 +190,118 @@ fun CrearViajesScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = fechaInicio,
-                    onValueChange = { fechaInicio = it },
-                    label = { Text("Fecha de inicio", color = secondaryText) },
-                    placeholder = { Text("DD/MM/AAAA", color = Color.Gray) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = inputBgColor,
-                        unfocusedContainerColor = inputBgColor,
-                        focusedBorderColor = accentColor,
-                        unfocusedBorderColor = secondaryText,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = fechaInicio,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Fecha de inicio", color = secondaryText) },
+                        placeholder = { Text("AAAA-MM-DD", color = Color.Gray) },
+                        trailingIcon = {
+                            IconButton(onClick = { showStartDatePicker = true }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha", tint = accentColor)
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledContainerColor = inputBgColor,
+                            disabledBorderColor = secondaryText,
+                            disabledTextColor = Color.White,
+                            disabledLabelColor = secondaryText,
+                            disabledPlaceholderColor = Color.Gray
+                        )
                     )
-                )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showStartDatePicker = true }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = fechaFin,
-                    onValueChange = { fechaFin = it },
-                    label = { Text("Fecha de fin", color = secondaryText) },
-                    placeholder = { Text("DD/MM/AAAA", color = Color.Gray) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = inputBgColor,
-                        unfocusedContainerColor = inputBgColor,
-                        focusedBorderColor = accentColor,
-                        unfocusedBorderColor = secondaryText,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = fechaFin,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Fecha de fin", color = secondaryText) },
+                        placeholder = { Text("AAAA-MM-DD", color = Color.Gray) },
+                        trailingIcon = {
+                            IconButton(onClick = { showEndDatePicker = true }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha", tint = accentColor)
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledContainerColor = inputBgColor,
+                            disabledBorderColor = secondaryText,
+                            disabledTextColor = Color.White,
+                            disabledLabelColor = secondaryText,
+                            disabledPlaceholderColor = Color.Gray
+                        )
                     )
-                )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showEndDatePicker = true }
+                    )
+                }
+
+                if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = errorMessage ?: "", color = Color(0xFFFF6B6B), fontSize = 14.sp)
+                }
 
                 Spacer(modifier = Modifier.height(28.dp))
 
                 Button(
                     onClick = {
-                        onCrearViaje(nombreViaje, destino, fechaInicio, fechaFin)
+                        if (nombreViaje.isBlank() || destino.isBlank()) {
+                            errorMessage = "El nombre y el destino son obligatorios"
+                            return@Button
+                        }
+                        isLoading = true
+                        errorMessage = null
+                        coroutineScope.launch {
+                            val nuevoViaje = Viaje(
+                                name = nombreViaje,
+                                destination = destino,
+                                startDate = fechaInicio,
+                                endDate = fechaFin
+                            )
+                            val result = repository.crearViaje(nuevoViaje)
+                            isLoading = false
+                            result.onSuccess {
+                                onViajeCreado()
+                            }.onFailure { err ->
+                                errorMessage = err.localizedMessage ?: "Error al guardar el viaje"
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = accentColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                    enabled = !isLoading
                 ) {
-                    Text(
-                        text = "Guardar Viaje",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(
+                            text = "Guardar Viaje",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -218,7 +329,7 @@ fun CrearViajesScreen(
 @Composable
 fun crearviajes(
     onVolver: () -> Unit = {},
-    onCrearViaje: (nombre: String, destino: String, fechaInicio: String, fechaFin: String) -> Unit = { _, _, _, _ -> }
+    onViajeCreado: () -> Unit = {}
 ) {
-    CrearViajesScreen(onVolver = onVolver, onCrearViaje = onCrearViaje)
+    CrearViajesScreen(onVolver = onVolver, onViajeCreado = onViajeCreado)
 }

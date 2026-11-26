@@ -2,6 +2,7 @@ package com.example.parcial2componentes.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,7 +21,7 @@ import com.example.parcial2componentes.data.Repository.ViajesRepository
 @Composable
 fun viajes(
     onNavigateToAvailableGames: () -> Unit = {},
-    onNavigateToDetalleViaje: (tripId: String) -> Unit = {}
+    onNavigateToDetalle: (String) -> Unit = {}
 ) {
     val backgroundColor = Color(0xFF11152B)
     val cardColor = Color(0xFF1D2340)
@@ -99,8 +100,14 @@ fun viajes(
                         ) {
                             items(listaViajes) { viaje ->
                                 Card(
-                                    onClick = { onNavigateToDetalleViaje(viaje.id ?: "") },
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            val tripId = viaje.id ?: viaje.name
+                                            if (tripId.isNotEmpty()) {
+                                                onNavigateToDetalle(tripId)
+                                            }
+                                        },
                                     shape = RoundedCornerShape(14.dp),
                                     colors = CardDefaults.cardColors(containerColor = Color(0xFF161B33)),
                                     border = BorderStroke(1.dp, Color(0xFF2B3254))
